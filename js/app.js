@@ -13,7 +13,7 @@ class CalorieTracker {
 
     addWorkout(workouts) {
         this._workouts.push(workouts);
-        this._totalCalories+=workouts.calories;
+        this._totalCalories-=workouts.calories;
     }
 }
 
@@ -34,4 +34,14 @@ class Workout {
     }
 }
 
-const tracker = newCaloriesTracker()
+const tracker = new CalorieTracker();
+
+const breakfast = new Meal("Breakfast", 400);
+tracker.addMeal(breakfast);
+
+const run = new Workout("Fast Run", 300);
+tracker.addWorkout(run);
+
+console.log(tracker._meals , tracker._workouts, tracker._totalCalories );
+
+
