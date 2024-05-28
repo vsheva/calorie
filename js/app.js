@@ -310,7 +310,7 @@ class App {
   _setLimit(e) {
     e.preventDefault();
 
-    let limit = +document.getElementById('limit').value; //! input is always string
+    let limit = +document.getElementById('limit').value; //! input is always string -----> we need number
 
     if (limit === '') {
       alert('Please set up a limit');
