@@ -1,8 +1,8 @@
 class CalorieTracker {
   constructor() {
-    this._calorieLimit = 2000;
-    this._totalCalories = 0;
-    this._meals = [];
+    this._calorieLimit = Storage.getCalorieLimit(); //! static class calling
+    this._totalCalories = Storage.getTotalCalories(0);
+    this._meals = Storage.getMeals(); //[]
     this._workouts = [];
 
     this._displayCaloriesLimit();
@@ -16,6 +16,8 @@ class CalorieTracker {
   addMeal(meal) {
     this._meals.push(meal);
     this._totalCalories += meal.calories;
+    Storage.updateTotalCalories(this._totalCalories); //
+    Storage.saveMeal(meal); //[]
     this._displayNewMeal(meal);
     this._render();
   }
@@ -23,6 +25,7 @@ class CalorieTracker {
   addWorkout(workout) {
     this._workouts.push(workout);
     this._totalCalories -= workout.calories;
+    Storage.updateTotalCalories(this._totalCalories); //
     this._displayNewWorkout(workout);
     this._render();
   }
@@ -33,6 +36,7 @@ class CalorieTracker {
 
     if (index !== -1) {
       this._totalCalories -= this._meals[index].calories;
+      Storage.updateTotalCalories(this._totalCalories); //
       const removed = this._meals.slice(index, index + 1);
       this._meals = this._meals.filter(meal => meal.name !== removed[0].name);
       this._render();
@@ -42,15 +46,12 @@ class CalorieTracker {
   removeWorkout(id) {
     console.log(id);
     const index = this._workouts.findIndex(workout => {
-      //  console.log(id);// нет
-      //   console.log(workout.id);
       return workout.id === id;
     });
 
-    //console.log(index); //-1
-    //console.log(this._workouts);
     if (index !== -1) {
       this._totalCalories += this._workouts[index].calories;
+      Storage.updateTotalCalories(this._totalCalories); //
       const removed = this._workouts.slice(index, index + 1);
       console.log(removed);
       this._workouts = this._workouts.filter(workout => workout.name !== removed[0].name);
@@ -68,7 +69,12 @@ class CalorieTracker {
   setLimit(limit) {
     this._calorieLimit = limit;
     this._displayCaloriesLimit();
+    Storage.setCalorieLimit(limit); //
     this._render();
+  }
+  //[]
+  loadItems() {
+    this._meals.forEach(meal => this._displayNewMeal(meal));
   }
 
   _displayCaloriesTotal() {
@@ -206,9 +212,68 @@ class Workout {
 // const run = new Workout('Fast Run', 320);
 // tracker.addWorkout(run);
 
+class Storage {
+  //calorie limit
+  static getCalorieLimit(defaultCalorieLimit = 2000) {
+    let calorieLimit;
+
+    if (localStorage.getItem('calorieLimit') === null) {
+      calorieLimit = defaultCalorieLimit;
+    } else {
+      calorieLimit = +localStorage.getItem('calorieLimit');
+    }
+    return calorieLimit;
+  }
+
+  static setCalorieLimit(calorieLimit) {
+    localStorage.setItem('calorieLimit', calorieLimit);
+  }
+
+  // total calories
+  static getTotalCalories(defaultTotalCalories = 0) {
+    let totalCalories;
+
+    if (localStorage.getItem('totalCalories') === null) {
+      totalCalories = defaultTotalCalories;
+    } else {
+      totalCalories = +localStorage.getItem('totalCalories');
+    }
+    return totalCalories;
+  }
+
+  static updateTotalCalories(calories) {
+    localStorage.setItem('totalCalories', calories);
+  }
+
+  //meals []
+  static getMeals() {
+    let meals;
+
+    if (localStorage.getItem('meals') === null) {
+      meals = [];
+    } else {
+      meals = JSON.parse(localStorage.getItem('meals')); //parse in Array
+    }
+    return meals;
+  }
+
+  static saveMeal(meal) {
+    //const meals = this.getMeals.bind.this(); //!
+    const meals = Storage.getMeals(); //!
+    console.log(meals);
+    meals.push(meal); //!
+    localStorage.setItem('meals', JSON.stringify(meals)); //!
+  }
+}
+
 class App {
   constructor() {
-    this._tracker = new CalorieTracker();
+    this._tracker = new CalorieTracker(); //! new class  call (create)
+    this._loadEventListeners();
+    this._tracker.loadItems(); //[]
+  }
+
+  _loadEventListeners() {
     document
       .getElementById('meal-form')
       .addEventListener('submit', this._newItem.bind(this, 'meal'));
@@ -285,11 +350,11 @@ class App {
     const text = e.target.value.toLowerCase();
     console.log(text);
 
-    //!!
+    //!
     document.querySelectorAll(`#${type}-items .card`).forEach(el => {
       const textName = el.firstElementChild.firstElementChild.textContent;
       console.log(textName);
-      //!!
+      //!
       if (textName.toLowerCase().indexOf(text) !== -1) {
         el.style.display = 'block';
       } else {
@@ -310,7 +375,7 @@ class App {
   _setLimit(e) {
     e.preventDefault();
 
-    let limit = +document.getElementById('limit').value; //! input is always string -----> we need number
+    let limit = +document.getElementById('limit').value; //! input is always string --> we need number
 
     if (limit === '') {
       alert('Please set up a limit');
