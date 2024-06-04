@@ -12,7 +12,7 @@ class CalorieTracker {
     this._displayCaloriesRemaining();
     this._displayCaloriesProgress();
 
-    document.getElementById('limit').value= this._calorieLimit;
+    document.getElementById('limit').value = this._calorieLimit;
   }
 
   addMeal(meal) {
@@ -209,16 +209,6 @@ class Workout {
   }
 }
 
-// const tracker = new CalorieTracker();
-
-// const breakfast = new Meal('Breakfast', 400);
-// tracker.addMeal(breakfast);
-// const lunch = new Meal('Lunch', 350);
-// tracker.addMeal(lunch);
-
-// const run = new Workout('Fast Run', 320);
-// tracker.addWorkout(run);
-
 class Storage {
   //calorie limit
   static getCalorieLimit(defaultCalorieLimit = 2000) {
@@ -305,10 +295,10 @@ class Storage {
     localStorage.setItem('workouts', JSON.stringify(workouts));
   }
 
- static clearAll() {
-  localStorage.removeItem("totalCalories");
-  localStorage.removeItem("meals");
-  localStorage.removeItem("workouts");
+  static clearAll() {
+    localStorage.removeItem('totalCalories');
+    localStorage.removeItem('meals');
+    localStorage.removeItem('workouts');
     //localStorage.clear();
   }
 }
